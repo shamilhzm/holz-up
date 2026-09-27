@@ -9,6 +9,7 @@ import { knock } from '../game/audio'
 import type { Progress } from '../game/progress'
 import { useStore } from '../state/store'
 import { DeskModel, type Look } from './DeskModel'
+import { frameDt } from './frame'
 import { hashString, makeWoodMaterial } from './woodMaterial'
 
 const MM = 0.001
@@ -107,7 +108,7 @@ export function Assembly({ prog }: { prog: Progress }) {
   const t0 = useRef(0)
   useFrame((_, dt) => {
     if (!clamping) return
-    t0.current += dt
+    t0.current += frameDt(dt)
     invalidate()
   })
 

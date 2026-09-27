@@ -5,6 +5,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { C, COBBLE_KG, ballastPerBoxKg, geometry, parts, type DeskParams } from '../model/desk'
 import { AXIS_INDEX, type Part, type Vec3 } from '../model/types'
 import { hashString, makeWoodMaterial } from './woodMaterial'
+import { frameDt } from './frame'
 
 const MM = 0.001
 const HIGHLIGHT = new THREE.Color('#ff9d3c')
@@ -155,7 +156,7 @@ export function DeskModel({ params, height, cutaway = false, highlight = [], loo
 
   useFrame(({ invalidate }, dt) => {
     const gap = height - shown.current
-    shown.current = Math.abs(gap) < 0.2 ? height : shown.current + gap * Math.min(1, dt * 6)
+    shown.current = Math.abs(gap) < 0.2 ? height : shown.current + gap * Math.min(1, frameDt(dt) * 6)
     if (shown.current !== height) invalidate()
     const d = (shown.current - params.sitHeight) * MM
     if (moving.current) moving.current.position.y = d

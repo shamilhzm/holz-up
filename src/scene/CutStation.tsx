@@ -6,6 +6,7 @@ import { useLive } from '../game/live'
 import { knock, sawSound } from '../game/audio'
 import { useStore } from '../state/store'
 import { hashString, makeWoodMaterial } from './woodMaterial'
+import { frameDt } from './frame'
 
 const MM = 0.001
 /** Board top height (m), pencil line position along z (m), offcut length (mm). */
@@ -220,7 +221,8 @@ export function CutStation({ job }: { job: CutJob }) {
     rerender()
   }
 
-  useFrame((_, dt) => {
+  useFrame((_, rawDt) => {
+    const dt = frameDt(rawDt)
     const s = state.current
     let busy = false
     if (hole && s.phase === 'sawing' && s.down) {

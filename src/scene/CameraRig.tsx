@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { frameDt } from './frame'
 
 export type View = 'room' | 'cut' | 'assemble'
 
@@ -26,7 +27,7 @@ export function CameraRig({ view, focus, focusKey }: { view: View; focus?: Focus
     if ((window as { holzCinema?: boolean }).holzCinema) return
     const g = goal.current
     if (!g || !controls) return
-    const k = Math.min(1, dt * 3.5)
+    const k = Math.min(1, frameDt(dt) * 3.5)
     camera.position.lerp(g.pos, k)
     controls.target.lerp(g.look, k)
     controls.update()
