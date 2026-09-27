@@ -525,10 +525,11 @@ const scenes = {
   async outro(r) {
     await r.clean(true)
     r.cursor.visible = false
-    const look = [0, 0.62, 0]
+    // Aim above the desk so it sits in the lower half, under the end card's lettering.
+    const look = [0, 0.92, 0]
     r.card('end', 4.4)
     const n = 120
-    await r.step(n, (i) => r.cam(r.orbitAt(look, 3.0, 0.8, 0.3 + (i / n) * 0.4), look, true))
+    await r.step(n, (i) => r.cam(r.orbitAt(look, 3.3, 0.5, 0.3 + (i / n) * 0.4), look, true))
   },
 }
 
