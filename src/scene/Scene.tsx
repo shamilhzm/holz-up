@@ -15,6 +15,15 @@ import { Assembly } from './Assembly'
 import { CameraRig, type Focus, type View } from './CameraRig'
 import { LumberStack } from './LumberStack'
 
+/** `?debug` exposes the three.js state for automated playthroughs and video recording. */
+function DebugHandle() {
+  const get = useThree((s) => s.get)
+  useLayoutEffect(() => {
+    if (new URLSearchParams(location.search).has('debug')) Object.assign(window, { holzThree: get })
+  }, [get])
+  return null
+}
+
 /** Shift the rendered image so the subject sits in the space not covered by the side panels. */
 function CenterInFreeSpace({ wide, right }: { wide: boolean; right: boolean }) {
   const { camera, size, invalidate } = useThree()
@@ -95,6 +104,7 @@ export function Scene() {
       <CenterInFreeSpace wide={station === 'shop'} right={station === 'plan' || station === 'test'} />
       <OrbitControls target={[0, 0.6, 0]} enableDamping minDistance={0.35} maxDistance={5} maxPolarAngle={1.52} enabled={view !== 'cut' && !holding} makeDefault />
       <CameraRig view={view} focus={focus} focusKey={view === 'assemble' ? stepId : undefined} />
+      <DebugHandle />
     </Canvas>
   )
 }

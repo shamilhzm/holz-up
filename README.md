@@ -42,6 +42,21 @@ npm run e2e              # Playwright playthrough (needs Chromium)
 npm run build:artifact   # single-file build for the claude.ai viewer
 ```
 
+### Walkthrough video
+
+`scripts/video` records a narrated walkthrough from the real game. Each frame is captured
+with the page clock frozen, so animations stay smooth on a slow software renderer. Captions,
+title cards and synthesized workshop sounds are added afterwards. The Python steps need
+`numpy`, `pillow` and `imageio-ffmpeg`.
+
+```sh
+npm run build && npx vite preview --port 4175 &
+node scripts/video/record.mjs video-out        # all scenes, or name some to re-record them
+node scripts/video/cards.mjs video-out         # captions and cards as PNGs
+python scripts/video/sound.py video-out        # soundtrack
+python scripts/video/make.py video-out         # -> video-out/holz-up.mp4
+```
+
 Code map: `src/model` (parametric desk, checks, cut list, shopping list), `src/game` (cut
 jobs, kerf and fit rules, build progress, sounds), `src/scene` (three.js / React Three Fiber:
 room, workbench, assembly, procedural wood shader), `src/ui` (stations and HUD),

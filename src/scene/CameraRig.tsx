@@ -22,6 +22,8 @@ export function CameraRig({ view, focus, focusKey }: { view: View; focus?: Focus
     // focusKey identifies the focus; the object itself is rebuilt every render.
   }, [view, focusKey, invalidate])
   useFrame((_, dt) => {
+    // A scripted camera (video recording) takes over while `holzCinema` is set.
+    if ((window as { holzCinema?: boolean }).holzCinema) return
     const g = goal.current
     if (!g || !controls) return
     const k = Math.min(1, dt * 3.5)
