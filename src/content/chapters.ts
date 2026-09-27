@@ -49,7 +49,7 @@ export const CHAPTERS: Chapter[] = [
     lernfelder: ['LF 2', 'LF 5'],
     mentor:
       'A carpenter never starts cutting without papers: the bill of materials, the cutting plan and the drawings. ' +
-      'Print them and pin them above the bench. They update whenever you change the design.',
+      'Take them to the store and pin them above the bench. They update whenever you change the design.',
   },
   {
     id: 'build',

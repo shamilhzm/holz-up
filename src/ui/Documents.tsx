@@ -5,6 +5,7 @@ import { SKUS } from '../model/stock'
 import { useStore } from '../state/store'
 import { Drawings } from './Drawing'
 import { Term } from './common'
+import { CAN_PRINT } from '../target'
 
 type Tab = 'bom' | 'cut' | 'draw'
 
@@ -20,7 +21,7 @@ export function Documents() {
         {([['bom', 'Bill of materials · Stückliste'], ['cut', 'Cutting plan · Zuschnitt'], ['draw', 'Drawings · Zeichnungen']] as [Tab, string][]).map(([t, label]) => (
           <button key={t} role="tab" aria-selected={tab === t} className={`btn ${tab === t ? 'on' : ''}`} onClick={() => setTab(t)}>{label}</button>
         ))}
-        <button className="btn" onClick={() => window.print()}>Print</button>
+        {CAN_PRINT && <button className="btn" onClick={() => window.print()}>Print</button>}
       </div>
       {tab === 'bom' && <Bom />}
       {tab === 'cut' && (
@@ -63,12 +64,16 @@ function Bom() {
             <td>{r.name.en}<div className="de small">{r.name.de}</div></td>
             <td className="num">{r.qty}</td>
             <td>{r.size}</td>
-            <td>{r.species}{r.stock ? <div className="small muted">{r.stock.replace(/(\d+)/, ' $1 mm').replace('Rod', ' rod Ø')}</div> : null}</td>
+            <td>{r.stock ? STOCK_LABEL[r.stock] : r.species}</td>
           </tr>
         ))}
       </tbody>
     </table>
   )
+}
+
+const STOCK_LABEL: Record<string, string> = {
+  pine18: 'Pine, 18 mm panel', pine27: 'Pine, 27 mm panel', beech18: 'Beech, 18 mm panel', beechRod12: 'Beech rod Ø12',
 }
 
 const SHORT: Record<string, string> = {

@@ -1,12 +1,14 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { CHAPTERS } from '../content/chapters'
 import { GLOSSARY } from '../content/glossary'
 import { PERSISTED, useStore } from '../state/store'
+import { CAN_DOWNLOAD } from '../target'
 
 export function TopBar() {
   const { chapter, setChapter, load } = useStore()
   const dialog = useRef<HTMLDialogElement>(null)
   const file = useRef<HTMLInputElement>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const save = () => {
     const s = useStore.getState()
@@ -22,8 +24,9 @@ export function TopBar() {
       const data = JSON.parse(await f.text())
       if (data.app !== 'holz-up') throw new Error('not a Holz-Up project')
       load(data)
+      setError(null)
     } catch (e) {
-      alert(`Could not open that file: ${(e as Error).message}`)
+      setError(`Could not open that file (${(e as Error).message}). Choose a file saved from Holz-Up.`)
     }
   }
 
@@ -39,10 +42,11 @@ export function TopBar() {
       </nav>
       <div className="tools">
         <button className="btn" onClick={() => dialog.current?.showModal()}>Glossary</button>
-        <button className="btn" onClick={save} title="Download your project as a file">Save</button>
+        {CAN_DOWNLOAD && <button className="btn" onClick={save} title="Download your project as a file">Save</button>}
         <button className="btn" onClick={() => file.current?.click()} title="Open a saved project file">Open</button>
         <input ref={file} type="file" accept="application/json" hidden onChange={(e) => e.target.files?.[0] && open(e.target.files[0])} />
       </div>
+      {error && <p className="popover" role="alert" style={{ top: 70, right: 16 }} onClick={() => setError(null)}>{error}</p>}
       <dialog ref={dialog} className="popover" style={{ position: 'fixed', maxWidth: 560, maxHeight: '80vh', overflow: 'auto', color: 'var(--ink)' }} onClick={(e) => e.target === dialog.current && dialog.current.close()}>
         <h2>Glossary · Fachbegriffe</h2>
         <dl className="glossary-list">

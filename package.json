@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "build:artifact": "tsc --noEmit && VITE_TARGET=artifact vite build --outDir dist-artifact && node scripts/inline-artifact.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

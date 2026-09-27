@@ -5,6 +5,7 @@ import { SKUS } from '../model/stock'
 import { shoppingList, type ShopItem } from '../model/shopping'
 import { useStore } from '../state/store'
 import { Term } from './common'
+import { CAN_PRINT } from '../target'
 
 const SECTIONS: [ShopItem['section'], string, string][] = [
   ['wood', 'Wood', 'Holz'],
@@ -60,7 +61,7 @@ export function Material() {
           </tr>
         </tfoot>
       </table>
-      <button className="btn no-print" style={{ marginTop: 10 }} onClick={() => window.print()}>Print list</button>
+      {CAN_PRINT && <button className="btn no-print" style={{ marginTop: 10 }} onClick={() => window.print()}>Print list</button>}
 
       <h3>Why these woods</h3>
       <p>
