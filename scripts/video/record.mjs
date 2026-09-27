@@ -153,6 +153,15 @@ class Rec {
     return { x: b.x + b.width / 2, y: b.y + b.height / 2 }
   }
   async click(locator, after = 6) {
+    // Panels scroll under a sticky footer: bring a target near the edges to the middle first.
+    await locator.evaluate((el) => {
+      let sc = el.parentElement
+      while (sc && !(sc.scrollHeight > sc.clientHeight && /auto|scroll/.test(getComputedStyle(sc).overflowY))) sc = sc.parentElement
+      if (!sc) return
+      const b = el.getBoundingClientRect()
+      const r = sc.getBoundingClientRect()
+      if (b.top < r.top + 20 || b.bottom > r.bottom - 90) el.scrollIntoView({ block: 'center' })
+    })
     const p = await this.center(locator)
     await this.clickAt(p.x, p.y, after)
   }
