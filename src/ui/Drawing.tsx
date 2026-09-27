@@ -3,7 +3,7 @@ import { C, geometry, offsetAt, parts, type DeskParams } from '../model/desk'
 import type { Part, Vec3 } from '../model/types'
 import { Seg } from './common'
 
-const VISIBLE = new Set(['wange-side', 'wange-end', 'cap', 'foot', 'top', 'rail', 'handle', 'batten'])
+const VISIBLE = new Set(['side', 'cap', 'plinth', 'top', 'rail', 'handle', 'batten', 'drawer-front'])
 const FILL: Record<string, string> = { pine: '#f1dfbb', beech: '#e3b993', granite: '#a19c95' }
 const INK = '#2d2721'
 
@@ -77,11 +77,11 @@ export function Drawings({ params: p }: { params: DeskParams }) {
   const vis = placed.filter((x) => VISIBLE.has(x.part.kind))
   const hidden = placed.filter((x) => !VISIBLE.has(x.part.kind) && x.part.kind !== 'ballast')
   const columns = placed.filter((x) => x.part.kind === 'column')
-  const inner = g.xc - p.wangeWidth / 2
+  const inner = g.xc - p.pedestalWidth / 2
   const m = fs * 4
 
   // Section through the left end panel: everything inside it, cut open.
-  const left = placed.filter((x) => Math.abs(x.c[0] + g.xc) < p.wangeWidth / 2 + 1 && !x.part.skin && x.part.kind !== 'top' && x.part.kind !== 'rail')
+  const left = placed.filter((x) => Math.abs(x.c[0] + g.xc) < p.pedestalWidth / 2 + 1 && !x.part.skin && x.part.kind !== 'top' && x.part.kind !== 'rail')
 
   return (
     <>
@@ -91,25 +91,25 @@ export function Drawings({ params: p }: { params: DeskParams }) {
         {vis.map((x) => <Shape key={x.part.id} p={x} a={0} style="visible" />)}
         {columns.map((x) => {
           const top = x.c[1] + x.part.size[1] / 2
-          return top > g.wangeTop ? <rect key={x.part.id} x={x.c[0] - x.part.size[0] / 2} y={-top} width={x.part.size[0]} height={top - g.wangeTop} fill="#fffdf8" stroke={INK} strokeWidth={2.5} /> : null
+          return top > g.pedTop ? <rect key={x.part.id} x={x.c[0] - x.part.size[0] / 2} y={-top} width={x.part.size[0]} height={top - g.pedTop} fill="#fffdf8" stroke={INK} strokeWidth={2.5} /> : null
         })}
         <DimV y1={0} y2={h} x={-p.topLength / 2 - fs * 1.2} label={`${h}`} fs={fs} />
         <DimH x1={-p.topLength / 2} x2={p.topLength / 2} y={h + fs * 1.4} label={`${p.topLength}`} fs={fs} />
-        <DimH x1={-inner} x2={inner} y={g.wangeTop * 0.55} label={`knee space ${g.kneeSpace}`} fs={fs} />
-        <DimV y1={0} y2={g.wangeTop} x={p.topLength / 2 + fs * 1.6} label={`${g.wangeTop}`} fs={fs} />
+        <DimH x1={-inner} x2={inner} y={g.pedTop * 0.55} label={`knee space ${g.kneeSpace}`} fs={fs} />
+        <DimV y1={0} y2={g.pedTop} x={p.topLength / 2 + fs * 1.6} label={`${g.pedTop}`} fs={fs} />
       </Frame>
-      <Frame title="Side view · Seitenansicht" box={[-p.footLength / 2 - m, -m * 1.6, p.footLength / 2 + m * 1.2, h + m]}>
+      <Frame title="Side view · Seitenansicht" box={[-p.pedestalDepth / 2 - m, -m * 1.6, p.pedestalDepth / 2 + m * 1.2, h + m]}>
         {hidden.map((x) => <Shape key={x.part.id} p={x} a={2} style="hidden" />)}
         {vis.filter((x) => x.c[0] < 0).map((x) => <Shape key={x.part.id} p={x} a={2} style="visible" />)}
         <DimH x1={-p.topDepth / 2} x2={p.topDepth / 2} y={h + fs * 1.4} label={`${p.topDepth}`} fs={fs} />
-        <DimH x1={-p.footLength / 2} x2={p.footLength / 2} y={-fs * 1.6} label={`${p.footLength}`} fs={fs} />
-        <DimH x1={-p.wangeDepth / 2} x2={p.wangeDepth / 2} y={g.wangeTop * 0.5} label={`${p.wangeDepth}`} fs={fs} />
-        <DimV y1={0} y2={h} x={p.footLength / 2 + fs * 1.6} label={`${h}`} fs={fs} />
+        <DimH x1={-p.pedestalDepth / 2} x2={p.pedestalDepth / 2} y={-fs * 1.6} label={`${p.pedestalDepth}`} fs={fs} />
+        <DimH x1={-p.pedestalDepth / 2} x2={p.pedestalDepth / 2} y={g.pedTop * 0.5} label={`${p.pedestalDepth}`} fs={fs} />
+        <DimV y1={0} y2={h} x={p.pedestalDepth / 2 + fs * 1.6} label={`${h}`} fs={fs} />
       </Frame>
-      <Frame title="Section A–A through the end panel · Schnitt durch die Wange" box={[-p.wangeDepth / 2 - m, -m, p.wangeDepth / 2 + m * 1.5, Math.max(h, g.wangeTop) + m]}>
+      <Frame title="Section A–A through the pedestal · Schnitt durch den Korpus" box={[-p.pedestalDepth / 2 - m, -m, p.pedestalDepth / 2 + m * 1.5, Math.max(h, g.pedTop) + m]}>
         {left.map((x) => <Shape key={x.part.id} p={x} a={2} style="section" />)}
-        <DimV y1={g.colBottomSit + (h - p.sitHeight)} y2={g.wangeTop} x={p.wangeDepth / 2 + fs * 1.4} label={`guided ${Math.round(g.wangeTop - g.colBottomSit - (h - p.sitHeight))}`} fs={fs * 0.8} />
-        <text x={0} y={-(g.wangeTop + fs)} fontSize={fs * 0.8} textAnchor="middle" fill={INK}>
+        <DimV y1={g.colBottomSit + (h - p.sitHeight)} y2={g.pedTop} x={p.pedestalDepth / 2 + fs * 1.4} label={`guided ${Math.round(g.pedTop - g.colBottomSit - (h - p.sitHeight))}`} fs={fs * 0.8} />
+        <text x={0} y={-(g.pedTop + fs)} fontSize={fs * 0.8} textAnchor="middle" fill={INK}>
           travel {g.travel} · weights {Math.round(g.weightTravel)} ({p.tackle}:1) · pulley Ø{C.pulleyD}
         </text>
       </Frame>

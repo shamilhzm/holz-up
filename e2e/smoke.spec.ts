@@ -1,7 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 
 const SHOTS = process.env.SHOTS_DIR
-
 async function shot(page: Page, name: string) {
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/${name}.png` })
 }
@@ -22,79 +21,112 @@ async function canvasIsDrawn(page: Page) {
   })
 }
 
-test('walk through all six chapters', async ({ page }) => {
+type Holz = { getState: () => Record<string, any> }
+const store = (page: Page, fn: (s: Record<string, any>) => unknown) =>
+  page.evaluate((src) => new Function('s', `return (${src})(s)`)((window as unknown as { holz: Holz }).holz.getState()), fn.toString())
+
+test('plan, buy, saw, assemble, tune and test the desk', async ({ page }) => {
+  test.setTimeout(240_000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
 
-  await page.goto('/')
+  await page.goto('/?debug')
   await expect(page.locator('canvas')).toBeVisible()
-  await page.waitForTimeout(2500)
+  await page.waitForTimeout(2000)
   expect(await canvasIsDrawn(page)).toBeGreaterThan(40)
-  await shot(page, '1-brief')
-
-  // 1 Brief: body height changes the suggested heights
-  await page.getByLabel('Your body height').fill('190')
-  await expect(page.getByText('Sitting 78 cm')).toBeVisible()
-
-  // 2 Design: checks respond to parameters
-  await page.getByRole('button', { name: 'Next →' }).click()
-  await expect(page.locator('[data-chapter="design"]')).toBeVisible()
   await expect(page.locator('[data-check="effort"]')).toHaveAttribute('data-status', 'ok')
-  await page.locator('.seg button', { hasText: 'None' }).click()
-  await expect(page.locator('[data-check="effort"]')).toHaveAttribute('data-status', 'fail')
-  await page.locator('.seg button', { hasText: 'Granite' }).click()
-  await page.getByRole('button', { name: 'Stand' }).click()
-  await page.getByRole('button', { name: 'Cutaway' }).click()
+  await shot(page, '1-plan')
+
+  // Store: buy the wood
+  await page.getByRole('button', { name: /DIY store/ }).click()
+  await page.getByRole('button', { name: /Buy everything/ }).click()
+  await page.getByRole('button', { name: 'To the workshop' }).click()
+  await expect(page.getByText('Now cutting')).toBeVisible()
+
+  // Saw one part for real: aim half a kerf onto the waste side, then stroke.
+  await page.mouse.move(900, 420)
+  const offset = async () => Number((await page.locator('svg.loupe').getAttribute('aria-label'))!.match(/Blade ([+-]?[\d.]+)/)![1])
+  const n = Math.round(((await offset()) - 0.5) / 0.1)
+  for (let i = 0; i < Math.abs(n); i++) await page.keyboard.press(n > 0 ? 'ArrowUp' : 'ArrowDown')
+  expect(await offset()).toBeCloseTo(0.5, 1)
+  await page.mouse.down()
+  for (let i = 0; i < 6; i++) await page.mouse.move(i % 2 ? 850 : 1150, 420, { steps: 4 })
+  await shot(page, '2-sawing')
+  for (let i = 0; i < 6; i++) await page.mouse.move(i % 2 ? 850 : 1150, 420, { steps: 4 })
+  await page.mouse.up()
+  await expect(page.getByTestId('cut-result')).toContainText('Spot on', { timeout: 15_000 })
+
+  // The store's panel saw cuts the rest of this step; then assemble.
+  await page.getByRole('button', { name: /panel saw/ }).click()
+  await expect(page.locator('.grab').first()).toBeVisible()
   await page.waitForTimeout(1500)
-  await shot(page, '2-design-stand-cutaway')
-  await page.getByRole('button', { name: 'Cutaway' }).click()
+  await shot(page, '3-assemble')
 
-  // 3 Material: prices add up
-  await page.getByRole('button', { name: 'Next →' }).click()
-  await page.getByLabel('Price of Wood glue D3').fill('9.5')
-  await expect(page.getByTestId('total')).toContainText('9,50')
-  await shot(page, '3-material')
-
-  // 4 Documents: all three tabs render SVG
-  await page.getByRole('button', { name: 'Next →' }).click()
-  for (const tab of ['Cutting plan', 'Drawings', 'Bill of materials']) {
-    await page.getByRole('tab', { name: new RegExp(tab) }).click()
-    if (tab !== 'Bill of materials') await expect(page.locator('.panel svg').first()).toBeVisible()
-    if (tab === 'Drawings') await shot(page, '4-drawings')
-    if (tab === 'Cutting plan') await shot(page, '4-cutting')
+  // Drag a part onto its glowing slot.
+  const box = (await page.locator('.grab').first().boundingBox())!
+  await page.mouse.move(box.x + 20, box.y + 20)
+  await page.mouse.down()
+  let snapped = false
+  for (let y = 250; y < 820 && !snapped; y += 55) {
+    for (let x = 470; x < 1380 && !snapped; x += 60) {
+      await page.mouse.move(x, y)
+      snapped = await page.getByTestId('snap').isVisible()
+    }
   }
+  expect(snapped).toBe(true)
+  await page.mouse.up()
+  expect(await store(page, (s) => Object.keys(s.build.placed).length)).toBeGreaterThan(0)
 
-  // 5 Build plan: focusing a step, ticking it off
-  await page.getByRole('button', { name: 'Next →' }).click()
-  await page.getByText('3. Laminate the columns').click()
-  await page.getByLabel('Done: Laminate the columns').check()
-  await expect(page.getByText('1 of 9 steps done')).toBeVisible()
+  // Fast-forward to the counterweight step, then tune it by hand.
+  await fastForward(page, 'tune')
+  await expect(page.getByTestId('tune-force')).toBeVisible()
+  for (let i = 0; i < 30; i++) {
+    const [l, r] = await store(page, (s) => s.build.cobbles) as [number, number]
+    const force = Number((await page.getByTestId('tune-force').innerText()).replace(' kg', ''))
+    if (force <= 5 && Math.abs(l - r) <= 1) break
+    await page.getByRole('button', { name: l <= r ? 'Add a cobble Left' : 'Add a cobble Right' }).click()
+  }
+  await page.getByRole('button', { name: 'It floats: done' }).click()
   await page.waitForTimeout(800)
-  await shot(page, '5-build')
+  await shot(page, '4-tuned')
 
-  // 6 Test: locked until squeezed, snaps to a detent, jams when dry
-  await page.getByRole('button', { name: 'Next →' }).click()
-  await page.getByRole('button', { name: '▲ up' }).click()
-  await expect(page.getByTestId('switch-msg')).toContainText('locked')
+  await fastForward(page, 'done')
+  await expect(page.getByText('The desk stands.')).toBeVisible()
+  await page.waitForTimeout(1500)
+  await shot(page, '5-done')
+
+  // Acceptance test uses your build
+  await page.getByRole('button', { name: 'On to the acceptance test' }).click()
+  await expect(page.getByText(/Testing the desk you built/)).toBeVisible()
   await page.getByRole('button', { name: 'Squeeze the handle' }).click()
-  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: '▼ down' }).click()
-  await expect(page.getByTestId('switch-msg')).toContainText('Gliding down')
+  await page.getByRole('button', { name: '▲ up' }).click()
+  await expect(page.getByTestId('switch-msg')).toContainText('Gliding up')
   await page.getByRole('button', { name: 'Let go of the handle' }).click()
   await expect(page.getByTestId('switch-msg')).toContainText('Locked at')
-  await page.getByRole('button', { name: /Guides waxed/ }).click()
-  await page.getByRole('button', { name: 'Squeeze the handle' }).click()
-  await page.getByRole('button', { name: '▲ up' }).click()
-  await expect(page.getByTestId('switch-msg')).toContainText('jams')
-  await page.waitForTimeout(1200)
-  await shot(page, '6-test')
 
-  // Progress survives a reload
   await page.reload()
   await expect(page.locator('[data-chapter="test"]')).toBeVisible()
-
   expect(errors).toEqual([])
 })
+
+/** Complete build steps through the store's own actions until the workshop reaches `until`. */
+async function fastForward(page: Page, until: 'tune' | 'done') {
+  await page.evaluate(async (target) => {
+    const s = () => (window as unknown as { holz: Holz }).holz.getState()
+    for (let guard = 0; guard < 800; guard++) {
+      const el = document.querySelector('[data-mode]')
+      if (!el || el.getAttribute('data-mode') === target) return
+      const [kind, key] = (el.getAttribute('data-next') ?? '').split('|')
+      if (kind === 'cut') s().recordCut(key, 0.2)
+      else if (kind === 'place') s().place(key)
+      else if (kind === 'tune') s().setTuned(true)
+      else if (kind === 'glue') s().glue(key)
+      else return
+      await new Promise((r) => setTimeout(r, 0))
+    }
+  }, until)
+}
 
 test('works on a phone-sized screen', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
@@ -103,5 +135,5 @@ test('works on a phone-sized screen', async ({ page }) => {
   await page.waitForTimeout(2000)
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
   expect(overflow).toBeLessThanOrEqual(0)
-  await shot(page, '7-phone')
+  await shot(page, '6-phone')
 })

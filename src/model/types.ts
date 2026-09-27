@@ -2,7 +2,7 @@ export type Vec3 = [number, number, number]
 export type Axis = 'x' | 'y' | 'z'
 export type Species = 'pine' | 'beech' | 'granite'
 export type Group = 'fixed' | 'moving' | 'ballast'
-export type StockMaterial = 'pine18' | 'pine27' | 'beech18' | 'beechRod12'
+export type StockMaterial = 'pine18' | 'pine27' | 'beech18' | 'beech20' | 'beech27' | 'ply6' | 'beechRod12'
 
 export interface I18n {
   en: string
@@ -27,6 +27,10 @@ export interface Part {
   /** Hidden when the cutaway view is on. */
   skin?: boolean
   dowels?: number
+  /** Assembly step it belongs to (see ASSEMBLY_STEPS). */
+  step: AssemblyStep
 }
+
+export type AssemblyStep = 'plinth' | 'carcass' | 'weights' | 'columns' | 'cap' | 'drawers' | 'top'
 
 export const AXIS_INDEX: Record<Axis, 0 | 1 | 2> = { x: 0, y: 1, z: 2 }

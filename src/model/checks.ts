@@ -38,11 +38,12 @@ const BEECH_SHEAR = 4 // N/mm²
 const LEAN_LOAD = 1000 // N, someone leaning on the top
 const NOTCH_H = 10
 
-export function physics(p: DeskParams): Physics {
+/** `ballastPerBox` overrides the ideal fill, e.g. with the cobbles the player actually loaded. */
+export function physics(p: DeskParams, ballastPerBox?: number): Physics {
   const g = geometry(p)
   const all = parts(p)
   const movingKg = movingMassKg(p)
-  const liftKg = actualLiftKg(p)
+  const liftKg = p.ballast === 'none' && ballastPerBox === undefined ? actualLiftKg(p, 0) : actualLiftKg(p, ballastPerBox)
   const ballastKg = (liftKg * p.tackle)
   const fixedKg = all.filter((x) => x.group === 'fixed').reduce((s, x) => s + massKg(x), 0)
   const totalKg = fixedKg + movingKg + ballastKg
@@ -61,8 +62,9 @@ export function physics(p: DeskParams): Physics {
   const handUpKg = up * k
   const handDownKg = down * k
 
-  const wobbleMm = L > 0 ? (p.clearance / L) * (g.maxHeight - g.wangeTop) : Infinity
-  const tipKgf = (totalKg * (p.footLength / 2)) / g.maxHeight
+  const wobbleMm = L > 0 ? (p.clearance / L) * (g.maxHeight - g.pedTop) : Infinity
+  const footprint = p.pedestalDepth - 2 * C.plinth.inset
+  const tipKgf = (totalKg * (footprint / 2)) / g.maxHeight
   const toothArea = C.rack.w * (p.detentPitch - NOTCH_H)
   const detentSafety = (2 * toothArea * BEECH_SHEAR) / LEAN_LOAD
 
@@ -87,8 +89,8 @@ export function runChecks(p: DeskParams): Check[] {
       status: reachOk ? 'ok' : 'fail',
       title: { en: 'Reaches both heights', de: 'Sitz- und Stehhöhe erreichbar' },
       value: `${g.detents[0]}–${g.maxHeight} mm · ${g.detents.length} detents`,
-      why: 'The column must still be guided at the top detent and the weight boxes need room to travel inside the end panels.',
-      terms: ['detent', 'wange'],
+      why: 'The column must still be guided at the top detent and the weight boxes need room to travel inside the pedestals.',
+      terms: ['detent', 'pedestal'],
     },
     {
       id: 'jam',
@@ -109,9 +111,9 @@ export function runChecks(p: DeskParams): Check[] {
     {
       id: 'ballast',
       status: p.ballast === 'none' ? 'fail' : ph.capacityLiftKg >= ph.targetLiftKg ? 'ok' : 'warn',
-      title: { en: 'Weights fit in the end panels', de: 'Gegengewicht passt in die Wangen' },
+      title: { en: 'Weights fit in the pedestals', de: 'Gegengewicht passt in die Korpusse' },
       value: `${f1(ph.liftKg)} of ${f1(ph.targetLiftKg)} kg balanced · ${f0(ph.ballastKg)} kg ballast`,
-      why: `Each end panel hides two boxes that travel ${f0(g.weightTravel)} mm. With a 2:1 tackle they move half as far but must be twice as heavy.`,
+      why: `Each pedestal hides a weight box behind the column that travels ${f0(g.weightTravel)} mm. With a 2:1 tackle it moves half as far but must be twice as heavy.`,
       terms: ['counterweight', 'tackle'],
     },
     {
@@ -119,7 +121,7 @@ export function runChecks(p: DeskParams): Check[] {
       status: band(ph.tipKgf, 15, 8, true),
       title: { en: 'Stable at standing height', de: 'Kippsicher in Stehhöhe' },
       value: `tips at ≈ ${f0(ph.tipKgf)} kg push on the top edge · desk ${f0(ph.totalKg)} kg`,
-      why: 'Higher desks tip more easily. Long foot runners and the low ballast keep it planted.',
+      why: 'Higher desks tip more easily. Deep pedestals and the low ballast keep it planted.',
       terms: ['tip'],
     },
     {
@@ -134,7 +136,7 @@ export function runChecks(p: DeskParams): Check[] {
       id: 'knee',
       status: band(g.kneeSpace, 700, 600, true),
       title: { en: 'Knee space', de: 'Beinraum' },
-      value: `${f0(g.kneeSpace)} mm between the end panels`,
+      value: `${f0(g.kneeSpace)} mm between the pedestals`,
       why: 'Clear width for your legs when sitting (guideline ≥ 700 mm).',
       terms: ['knee'],
     },

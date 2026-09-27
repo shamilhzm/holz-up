@@ -1,7 +1,7 @@
 import type { I18n } from '../model/types'
 
 export interface Chapter {
-  id: 'brief' | 'design' | 'material' | 'documents' | 'build' | 'test'
+  id: 'plan' | 'shop' | 'workshop' | 'test'
   title: I18n
   /** Step of the vollständige Handlung. */
   phase: I18n
@@ -11,54 +11,33 @@ export interface Chapter {
 
 export const MENTOR = 'Meisterin Linde'
 
+/** The four stations of the workshop, in the order a carpenter works. */
 export const CHAPTERS: Chapter[] = [
   {
-    id: 'brief',
-    title: { en: 'The brief', de: 'Auftrag' },
-    phase: { en: 'Inform', de: 'Informieren' },
-    lernfelder: ['LF 1', 'LF 12'],
+    id: 'plan',
+    title: { en: 'Drafting table', de: 'Zeichentisch' },
+    phase: { en: 'Inform & plan', de: 'Informieren & Planen' },
+    lernfelder: ['LF 4', 'LF 5', 'LF 12'],
     mentor:
-      'Welcome to the workshop! Our job: a desk made only of wood that one person can move between sitting and standing, with one hand. ' +
-      'Every good piece starts with the person who will use it, so tell me how tall you are and I will suggest two heights. ' +
-      'Then test them for real with a stack of books under your laptop.',
+      'Welcome to the workshop! We are building a desk that one person moves between sitting and standing with one hand. ' +
+      'Two drawer pedestals hide the trick: cobblestones on a cord balance the top, like an old sash window. ' +
+      'Tell me your height, shape the desk, and watch the checks on the right.',
   },
   {
-    id: 'design',
-    title: { en: 'Design', de: 'Konstruktion' },
-    phase: { en: 'Plan', de: 'Planen' },
-    lernfelder: ['LF 4', 'LF 5'],
-    mentor:
-      'Here is the idea. Two solid end panels hide a column each and some cobblestones on cords, like an old sash window. ' +
-      'The stones balance the top, so it floats. Drag the height slider and switch on the cutaway to watch the weights sink while the top rises. ' +
-      'Change anything you like: the checks on the right tell you, with reasons, whether it still works.',
-  },
-  {
-    id: 'material',
-    title: { en: 'Material & cost', de: 'Material & Kosten' },
+    id: 'shop',
+    title: { en: 'DIY store', de: 'Baumarkt' },
     phase: { en: 'Decide', de: 'Entscheiden' },
     lernfelder: ['LF 1', 'LF 2'],
     mentor:
-      'Everything comes from a normal DIY store: pine glued panels for the body, a little beech for the parts that move and wear, ' +
-      'linen cord, and granite cobbles from the garden aisle. Sizes differ between stores, so take this list with you and check. ' +
-      'Type in the prices you see and I will add them up.',
+      'Everything comes from a normal DIY store: glued panels, a little beech for the parts that move, linen cord and ' +
+      'granite cobbles from the garden aisle. Check the sizes in your store, type in the prices, then buy the wood.',
   },
   {
-    id: 'documents',
-    title: { en: 'Documents', de: 'Unterlagen' },
-    phase: { en: 'Plan', de: 'Planen' },
-    lernfelder: ['LF 2', 'LF 5'],
-    mentor:
-      'A carpenter never starts cutting without papers: the bill of materials, the cutting plan and the drawings. ' +
-      'Take them to the store and pin them above the bench. They update whenever you change the design.',
-  },
-  {
-    id: 'build',
-    title: { en: 'Build plan', de: 'Arbeitsplan' },
+    id: 'workshop',
+    title: { en: 'Workshop', de: 'Werkstatt' },
     phase: { en: 'Execute', de: 'Durchführen' },
     lernfelder: ['LF 2', 'LF 3', 'LF 5'],
-    mentor:
-      'Here is the order of work. Tick each step when you have done it for real; the parts involved light up in the model. ' +
-      'Read the safety notes. I mean it.',
+    mentor: 'Step by step: saw the parts for each assembly, then fit and glue them. Measure twice, cut once.',
   },
   {
     id: 'test',
@@ -66,7 +45,7 @@ export const CHAPTERS: Chapter[] = [
     phase: { en: 'Check & evaluate', de: 'Kontrollieren & Bewerten' },
     lernfelder: ['LF 12'],
     mentor:
-      'Moment of truth. Hold the release handle, move the top, let go and it drops into the next detent. ' +
+      'Moment of truth. Squeeze the release handle, move the top, let go and it drops into the next detent. ' +
       'Then try it without the stones, or without wax, and feel why they matter.',
   },
 ]
@@ -93,7 +72,7 @@ export const BUILD_STEPS: BuildStep[] = [
   {
     id: 'cut', title: { en: 'Cut to size', de: 'Zuschnitt' }, lernfelder: ['LF 2'],
     tools: ['Cutting plan', 'Track saw or store cutting service', 'Try square', 'Pencil'],
-    highlight: ['wange-side', 'wange-end', 'cap', 'floor', 'divider', 'sleeve'],
+    highlight: ['side', 'cap', 'floor', 'divider', 'guide'],
     text: 'Many stores cut panels to size for a small fee; bring the cutting plan. Mark every piece with its name and an arrow for the grain. Cut on the waste side of the line.',
     safety: 'Circular saws: riving knife fitted, push stick, hearing and eye protection.',
     terms: ['cutting', 'kerf', 'grain'],
@@ -105,10 +84,10 @@ export const BUILD_STEPS: BuildStep[] = [
     terms: ['lamination', 'column', 'clamp'],
   },
   {
-    id: 'wangen', title: { en: 'Build the end panels', de: 'Wangen bauen' }, lernfelder: ['LF 4', 'LF 5'],
-    tools: ['Dowel jig', 'Drill', 'Clamps', 'Glue'], highlight: ['wange-side', 'wange-end', 'cap', 'floor', 'divider', 'sleeve'],
-    text: 'Dowel the box together. Glue the guide walls around a spacer that is the column plus 0.4 mm: a layer of packing tape on the column works. That makes the fit exactly right.',
-    terms: ['dowel', 'guide', 'clearance', 'wange'],
+    id: 'pedestals', title: { en: 'Build the pedestals', de: 'Korpusse bauen' }, lernfelder: ['LF 4', 'LF 5'],
+    tools: ['Dowel jig', 'Drill', 'Clamps', 'Glue', 'Chisel for the finger joints'], highlight: ['side', 'cap', 'floor', 'back', 'divider', 'guide'],
+    text: 'Cut the finger joints between sides and top first (a jig on the router table or saw + chisel). Dowel the rest together. Glue the guide walls around a spacer that is the column plus 0.4 mm: a layer of packing tape on the column works.',
+    terms: ['fingerjoint', 'dowel', 'guide', 'clearance', 'pedestal'],
   },
   {
     id: 'rack', title: { en: 'Detent racks & pawls', de: 'Rastleisten & Sperrklinken' }, lernfelder: ['LF 5'],
@@ -124,14 +103,14 @@ export const BUILD_STEPS: BuildStep[] = [
     terms: ['pulley', 'tackle', 'counterweight'],
   },
   {
-    id: 'base', title: { en: 'Feet, rail & top battens', de: 'Kufen, Traverse & Gratleisten' }, lernfelder: ['LF 5'],
-    tools: ['Glue', 'Clamps', 'Dowel jig'], highlight: ['foot', 'rail', 'batten'],
-    text: 'Glue each foot from two layers and round the ends. Fit the rear rail between the end panels. On the top, glue the battens only in the middle 10 cm and let the ends float in wooden buttons, so the top can move with the seasons.',
+    id: 'base', title: { en: 'Plinth, rail, drawers & battens', de: 'Sockel, Traverse, Schubkästen & Gratleisten' }, lernfelder: ['LF 5'],
+    tools: ['Glue', 'Clamps', 'Dowel jig'], highlight: ['plinth', 'rail', 'drawer-front', 'batten'],
+    text: 'Fit the plinth and the rear floor rail between the pedestals. Build the drawers with 3 mm of air around each front. On the top, glue the battens only in the middle 10 cm and let the ends float in wooden buttons, so the top can move with the seasons.',
     terms: ['batten', 'movement', 'wedgedTenon'],
   },
   {
     id: 'finish', title: { en: 'Sand & oil', de: 'Schleifen & Ölen' }, lernfelder: ['LF 5'],
-    tools: ['Sander', 'Grits 80/120/180', 'Hardwax oil', 'Lint-free rags'], highlight: ['top', 'wange-side', 'cap', 'foot', 'handle'],
+    tools: ['Sander', 'Grits 80/120/180', 'Hardwax oil', 'Lint-free rags'], highlight: ['top', 'side', 'cap', 'drawer-front', 'handle'],
     text: 'Sand 80 → 120 → 180 with the grain and soften every edge. Oil thinly, wipe off the excess after 15 minutes, leave it overnight, then give it a second coat. Leave the guides unoiled; they get wax.',
     safety: 'Oil-soaked rags can self-ignite: lay them flat outside to dry or keep them in a closed jar of water.',
     terms: ['grit', 'hardwaxoil', 'oilrags', 'dust'],

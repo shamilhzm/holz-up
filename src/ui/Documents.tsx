@@ -73,11 +73,13 @@ function Bom() {
 }
 
 const STOCK_LABEL: Record<string, string> = {
-  pine18: 'Pine, 18 mm panel', pine27: 'Pine, 27 mm panel', beech18: 'Beech, 18 mm panel', beechRod12: 'Beech rod Ø12',
+  pine18: 'Pine, 18 mm panel', pine27: 'Pine, 27 mm panel', beech18: 'Beech, 18 mm panel', beech20: 'Beech, 20 mm panel',
+  beech27: 'Beech, 27 mm panel', ply6: 'Birch plywood 6 mm', beechRod12: 'Beech rod Ø12',
 }
 
 const SHORT: Record<string, string> = {
-  'wange-side': 'Side', 'wange-end': 'End', cap: 'Cap', floor: 'Floor', divider: 'Divider', sleeve: 'Guide', rack: 'Rack', foot: 'Foot',
+  side: 'Side', back: 'Back', cap: 'Top', floor: 'Floor', divider: 'Divider', guide: 'Guide', rack: 'Rack', plinth: 'Plinth', runner: 'Runner',
+  'drawer-front': 'Drawer front', 'drawer-side': 'Drawer side', 'drawer-back': 'Drawer back', 'drawer-bottom': 'Drawer bottom',
   pulley: 'Pulley', sheave: 'Sheave', axle: 'Axle', column: 'Column', batten: 'Batten', pawl: 'Pawl', top: 'Top', handle: 'Handle',
   rail: 'Rail', 'box-side': 'Box side', 'box-end': 'Box end', 'box-floor': 'Box floor',
 }

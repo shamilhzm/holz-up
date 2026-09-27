@@ -16,7 +16,7 @@ const SECTIONS: [ShopItem['section'], string, string][] = [
 const eur = (n: number) => n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
 
 export function Material() {
-  const { params, storeName, setStoreName, prices, setPrice } = useStore()
+  const { params, storeName, setStoreName, prices, setPrice, build, buy, setStation } = useStore()
   const items = useMemo(() => shoppingList(params, planCuts(pieces(parts(params)), SKUS)), [params])
   const priced = items.filter((i) => prices[i.id] !== undefined)
   const total = priced.reduce((s, i) => s + i.qty * prices[i.id], 0)
@@ -26,6 +26,16 @@ export function Material() {
       <div className="field no-print">
         <label htmlFor="store">Your local DIY store</label>
         <input id="store" className="btn" style={{ width: 160 }} value={storeName} onChange={(e) => setStoreName(e.target.value)} />
+      </div>
+      <div className="buy">
+        {build.bought ? (
+          <>
+            <span>✓ Wood bought and stacked to acclimatise.</span>
+            <button className="btn primary" onClick={() => setStation(2)}>To the workshop</button>
+          </>
+        ) : (
+          <button className="btn primary" onClick={buy}>Buy everything and carry it home</button>
+        )}
       </div>
       <h3>Shopping list for {storeName || 'your store'}</h3>
       <table>

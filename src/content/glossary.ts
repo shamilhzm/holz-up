@@ -6,6 +6,9 @@ export interface Term {
 
 /** Fachbegriffe: English ↔ German trade terms with a one-line explanation. */
 export const GLOSSARY: Record<string, Term> = {
+  pedestal: { en: 'Pedestal', de: 'Korpus / Unterschrank', explain: 'The box-shaped support under each end of the desk. Here it holds drawers in front and hides the column and counterweight behind.' },
+  fingerjoint: { en: 'Finger joint', de: 'Fingerzinken', explain: 'Interlocking rectangular fingers glued at a corner. Strong, needs no metal, and shows off the end grain.' },
+  stopblock: { en: 'Stop block', de: 'Anschlag', explain: 'A block clamped at a set distance from the blade so every identical part comes out exactly the same length.' },
   wange: { en: 'End panel', de: 'Wange', explain: 'The solid side support of a table or desk. Here it hides the column guide and the counterweights.' },
   column: { en: 'Column', de: 'Säule', explain: 'The upright that carries the top. Ours is laminated from three 18 mm boards so it stays straight.' },
   lamination: { en: 'Lamination', de: 'Lamellieren', explain: 'Gluing several thin boards into one thick piece. Stresses in the wood cancel out, so it warps less than solid stock.' },

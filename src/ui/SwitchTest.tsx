@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
-import { geometry } from '../model/desk'
+import { COBBLE_KG, geometry, parts } from '../model/desk'
 import { physics, runChecks } from '../model/checks'
+import { progress } from '../game/progress'
 import { useStore } from '../state/store'
 import { Term } from './common'
 
@@ -8,14 +9,16 @@ import { Term } from './common'
 const MAX_HAND_KG = 12
 
 export function SwitchTest() {
-  const { params, height, setHeight } = useStore()
+  const { params, height, setHeight, build } = useStore()
+  const built = useMemo(() => progress(parts(params), build).mode === 'done', [params, build])
+  const perBox = built ? ((build.cobbles[0] + build.cobbles[1]) / 2) * COBBLE_KG : undefined
   const [squeezed, setSqueezed] = useState(false)
   const [withBallast, setWithBallast] = useState(true)
   const [waxed, setWaxed] = useState(params.waxed)
   const [msg, setMsg] = useState('Locked in a detent.')
 
   const trial = { ...params, ballast: withBallast ? params.ballast : ('none' as const), waxed }
-  const ph = physics(trial)
+  const ph = physics(trial, withBallast ? perBox : 0)
   const g = geometry(params)
   // Same rule as the "No drawer jam" check: above 3× friction a real guide sticks.
   const jammed = !Number.isFinite(ph.k) || ph.k > 3
@@ -44,6 +47,7 @@ export function SwitchTest() {
   const color = force <= 5 ? 'var(--ok)' : force <= 10 ? 'var(--warn)' : 'var(--fail)'
   return (
     <>
+      <p className="small muted">{built ? `Testing the desk you built (${build.cobbles[0]} + ${build.cobbles[1]} stones).` : 'Testing the design. Build it in the workshop to test your own work.'}</p>
       <h3>Switch test</h3>
       <div className="tools" style={{ flexWrap: 'wrap' }}>
         <button className={`btn ${squeezed ? 'on' : 'primary'}`} aria-pressed={squeezed} onClick={() => (squeezed ? release() : (setSqueezed(true), setMsg('Pawls lifted: move the top.')))}>

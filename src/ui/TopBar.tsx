@@ -3,10 +3,12 @@ import { CHAPTERS } from '../content/chapters'
 import { GLOSSARY } from '../content/glossary'
 import { PERSISTED, useStore } from '../state/store'
 import { CAN_DOWNLOAD } from '../target'
+import { Clipboard } from './Clipboard'
 
 export function TopBar() {
-  const { chapter, setChapter, load } = useStore()
+  const { station, setStation, load } = useStore()
   const dialog = useRef<HTMLDialogElement>(null)
+  const clip = useRef<HTMLDialogElement>(null)
   const file = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -35,18 +37,20 @@ export function TopBar() {
       <div className="brand">Holz<span>-</span>Up</div>
       <nav className="stepper" aria-label="Chapters">
         {CHAPTERS.map((c, i) => (
-          <button key={c.id} aria-current={i === chapter ? 'step' : undefined} onClick={() => setChapter(i)} title={`${c.phase.en} · ${c.phase.de}`}>
+          <button key={c.id} aria-current={i === station ? 'step' : undefined} onClick={() => setStation(i)} title={`${c.phase.en} · ${c.phase.de}`}>
             <b>{i + 1}</b>{c.title.en}
           </button>
         ))}
       </nav>
       <div className="tools">
+        <button className="btn" onClick={() => clip.current?.showModal()}>Clipboard</button>
         <button className="btn" onClick={() => dialog.current?.showModal()}>Glossary</button>
         {CAN_DOWNLOAD && <button className="btn" onClick={save} title="Download your project as a file">Save</button>}
         <button className="btn" onClick={() => file.current?.click()} title="Open a saved project file">Open</button>
         <input ref={file} type="file" accept="application/json" hidden onChange={(e) => e.target.files?.[0] && open(e.target.files[0])} />
       </div>
       {error && <p className="popover" role="alert" style={{ top: 70, right: 16 }} onClick={() => setError(null)}>{error}</p>}
+      <Clipboard ref={clip} />
       <dialog ref={dialog} className="popover" style={{ position: 'fixed', maxWidth: 560, maxHeight: '80vh', overflow: 'auto', color: 'var(--ink)' }} onClick={(e) => e.target === dialog.current && dialog.current.close()}>
         <h2>Glossary · Fachbegriffe</h2>
         <dl className="glossary-list">

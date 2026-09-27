@@ -20,12 +20,12 @@ describe('geometry', () => {
   })
   it('leaves a finger-safe gap between batten and end panel at sitting height', () => {
     const batten = parts(DEFAULTS).find((x) => x.id === 'batten-L')!
-    expect(batten.pos[1] - batten.size[1] / 2 - g.wangeTop).toBe(25)
+    expect(batten.pos[1] - batten.size[1] / 2 - g.pedTop).toBe(25)
   })
   it('keeps the column inside its guide at the top detent', () => {
     expect(g.guideLength).toBeGreaterThan(150)
   })
-  it('weight boxes never hit the end panel floor', () => {
+  it('weight boxes never hit the pedestal floor', () => {
     expect(g.boxTopSit - g.box[1] - g.weightTravel).toBeGreaterThanOrEqual(g.interiorBottom)
   })
 })
@@ -68,10 +68,19 @@ describe('balance and checks', () => {
   it('sand is too light for the end panels', () => {
     expect(status({ ...DEFAULTS, ballast: 'sand' }).ballast).toBe('warn')
   })
-  it('narrow end panels leave room for knees, wide ones do not', () => {
-    expect(status({ ...DEFAULTS, wangeWidth: 330 }).knee).toBe('fail')
+  it('wide pedestals steal knee space', () => {
+    expect(status({ ...DEFAULTS, pedestalWidth: 450 }).knee).toBe('fail')
   })
-  it('short feet make it tippy', () => {
-    expect(physics({ ...DEFAULTS, footLength: 200 }).tipKgf).toBeLessThan(physics(DEFAULTS).tipKgf)
+  it('shallow pedestals make it tippy', () => {
+    expect(physics({ ...DEFAULTS, pedestalDepth: 400 }).tipKgf).toBeLessThan(physics(DEFAULTS).tipKgf)
+  })
+  it('a thick beech top outgrows the ballast', () => {
+    expect(status({ ...DEFAULTS, topThickness: 27 }).effort).not.toBe('ok')
+  })
+  it('every part belongs to an assembly step', () => {
+    for (const x of parts(DEFAULTS)) expect(x.step).toBeTruthy()
+  })
+  it('player-loaded ballast changes the hand force', () => {
+    expect(physics(DEFAULTS, 0).handKg).toBeGreaterThan(20)
   })
 })

@@ -1,4 +1,4 @@
-import { ballastPerBoxKg, C, DeskParams, geometry, parts } from './desk'
+import { ballastPerBoxKg, C, COBBLE_KG, DeskParams, geometry, parts } from './desk'
 import type { CutPlan } from './cutlist'
 import type { I18n } from './types'
 
@@ -12,9 +12,8 @@ export interface ShopItem {
 }
 
 const pcs = { en: 'pcs', de: 'Stk.' }
-const COBBLE_KG = 2.2
 const OIL_M2_PER_L = 20
-const OILED = new Set(['wange-side', 'wange-end', 'cap', 'top', 'foot', 'rail', 'batten', 'column', 'handle'])
+const OILED = new Set(['side', 'cap', 'top', 'drawer-front', 'plinth', 'rail', 'batten', 'column', 'handle'])
 
 export function shoppingList(p: DeskParams, plan: CutPlan): ShopItem[] {
   const g = geometry(p)
@@ -35,7 +34,7 @@ export function shoppingList(p: DeskParams, plan: CutPlan): ShopItem[] {
 
   const cordPerLift = (g.pulleyY - g.colBottomSit) + (Math.PI * C.pulleyD) / 2 + (g.pulleyY - g.boxTopSit) * p.tackle + 200
   const releaseCord = p.topDepth / 2 + g.colLen
-  const cordM = Math.ceil(((4 * cordPerLift + 2 * releaseCord) * 1.15) / 1000)
+  const cordM = Math.ceil(((2 * cordPerLift + 2 * releaseCord) * 1.15) / 1000)
   items.push({ id: 'cord', section: 'hardware', name: { en: 'Linen or hemp cord Ø6 mm', de: 'Leinen- oder Hanfschnur Ø6 mm' }, qty: cordM, unit: { en: 'm', de: 'm' } })
   items.push({ id: 'wax', section: 'finish', name: { en: 'Paraffin / candle wax for the guides', de: 'Paraffin / Kerzenwachs für die Führungen' }, qty: 1, unit: pcs })
 
@@ -49,7 +48,7 @@ export function shoppingList(p: DeskParams, plan: CutPlan): ShopItem[] {
     items.push({ id: `sand-${grit}`, section: 'finish', name: { en: `Sandpaper grit ${grit}`, de: `Schleifpapier Körnung ${grit}` }, qty: 5, unit: { en: 'sheets', de: 'Bogen' } })
   }
 
-  const ballastKg = 4 * ballastPerBoxKg(p)
+  const ballastKg = 2 * ballastPerBoxKg(p)
   if (p.ballast === 'granite') {
     items.push({ id: 'cobbles', section: 'ballast', name: { en: 'Granite paving cobbles 8/10', de: 'Granitpflaster 8/10' }, qty: Math.ceil(ballastKg / COBBLE_KG), unit: pcs, note: { en: `≈ ${ballastKg.toFixed(0)} kg — weigh a few, then add or remove to tune`, de: `≈ ${ballastKg.toFixed(0)} kg — ein paar wiegen, dann zum Austarieren ergänzen` } })
     items.push({ id: 'tune-sand', section: 'ballast', name: { en: 'Play sand, small bag (fine tuning)', de: 'Spielsand, kleiner Sack (Feinabgleich)' }, qty: 1, unit: pcs })

@@ -69,8 +69,8 @@ export function Room() {
           <boxGeometry args={[0.44, 0.58, 0.004]} />
         </mesh>
       </group>
-      <Plant position={[-1.45, 0, -0.85]} scale={1.3} />
-      <Plant position={[1.35, 0, -0.95]} scale={0.9} />
+      <Plant position={[-1.8, 0, -1.0]} scale={1.3} />
+      <Plant position={[1.75, 0, -1.0]} scale={0.9} />
     </group>
   )
 }

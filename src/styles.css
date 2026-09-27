@@ -163,3 +163,34 @@ td input { width: 72px; border: 1px solid var(--line); border-radius: 6px; paddi
   .panel { position: static; width: auto; border: 0; box-shadow: none; background: #fff; overflow: visible; }
   .panel.wide { width: auto; }
 }
+
+/* Workshop game */
+.linkish { border: 0; background: none; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.warn { color: var(--warn); }
+.track { list-style: none; display: flex; gap: 6px; padding: 0; margin: 10px 0 0; }
+.track li { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 0.8rem; border: 1px solid var(--line); color: var(--muted); }
+.track li[data-state='done'] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.track li[data-state='now'] { border-color: var(--wood); color: var(--ink); box-shadow: 0 0 0 2px color-mix(in srgb, var(--wood) 35%, transparent); }
+.job { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--paper); margin: 10px 0; }
+.job p { margin: 4px 0 0; }
+.loupe { width: 100%; height: auto; display: block; color: var(--ink); background: var(--paper-2); border-radius: 10px; margin: 8px 0; }
+.how { padding-left: 18px; }
+.how li { margin: 4px 0; color: var(--muted); }
+.how li.now { color: var(--ink); }
+.stamp { border-radius: 12px; padding: 8px 12px; margin: 8px 0; border: 1px solid var(--line); background: var(--paper-2); }
+.stamp.perfect, .stamp.good { border-color: var(--ok); }
+.stamp.ok { border-color: var(--warn); }
+.stamp.poor { border-color: var(--fail); }
+.tray { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+.card { border: 1px solid var(--line); border-radius: 12px; padding: 8px; background: var(--paper); display: grid; gap: 6px; align-content: start; }
+.card.held { border-color: var(--wood); }
+.grab { display: grid; gap: 1px; text-align: left; border: 0; background: var(--paper-2); border-radius: 8px; padding: 8px; cursor: grab; touch-action: none; }
+.grab:active { cursor: grabbing; }
+.grab:disabled { opacity: 0.5; cursor: not-allowed; }
+.buy { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+dialog.clipboard { width: min(960px, calc(100vw - 32px)); max-height: 86vh; overflow: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: var(--ink); padding: 16px 20px; box-shadow: var(--shadow); }
+dialog.clipboard header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+dialog::backdrop { background: rgba(40, 30, 20, 0.35); }
+details > summary { cursor: pointer; margin: 10px 0 2px; }
+:focus-visible { outline: 2px solid var(--wood); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
