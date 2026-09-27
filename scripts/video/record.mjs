@@ -253,6 +253,8 @@ async function open(browser, setup) {
   await page.clock.install({ time: new Date('2026-09-27T09:30:00Z') })
   await page.goto(`${URL}?debug`)
   await page.waitForTimeout(400)
+  // From here on, page time only moves when a frame is recorded.
+  await page.clock.pauseAt(new Date('2026-09-27T09:31:00Z'))
   await page.clock.runFor(800)
   await page.addStyleTag({ content: CSS })
   await page.evaluate((svg) => {
@@ -436,7 +438,9 @@ const scenes = {
     r.caption('Assembly · Montage', 'Glue and clamp, then on to the next step.', 3, POS.workshop)
     await r.click(r.page.getByRole('button', { name: 'Glue & clamp' }), 2)
     r.cue('clamp')
-    await r.step(30)
+    // The clamps come off after 1.6 s and the next step's saw takes over: stop on the clamped part.
+    await r.step(24)
+    await r.read(true)
   },
 
   async timelapse(r) {
