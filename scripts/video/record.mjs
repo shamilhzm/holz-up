@@ -451,10 +451,15 @@ const scenes = {
       await r.click(r.page.getByRole('button', { name: left <= right ? 'Add a cobble Left' : 'Add a cobble Right' }), 3)
       r.cue('stone')
     }
-    await r.step(10)
-    await r.click(r.page.getByRole('button', { name: 'It floats: done' }), 4)
+    await r.step(6)
     r.cue('ding')
-    await r.step(16)
+    r.caption('Balance · Austarieren', 'It floats: one hand moves the top.', 2.6, POS.workshop)
+    await r.step(24)
+    const done = await r.center(r.page.getByRole('button', { name: 'It floats: done' }))
+    await r.move(done.x, done.y)
+    await r.read()
+    // Moving on switches to the next step's saw: end the scene on the press.
+    await r.clickAt(done.x, done.y, 0)
   },
 
   async finish(r) {
