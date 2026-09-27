@@ -168,7 +168,9 @@ L += pad_l * fade
 R += pad_r * fade
 
 mix = np.stack([L, R], axis=1)[:end_sample]
-mix /= max(1e-9, np.abs(mix).max()) / 0.89
+# Loudness: bring the mix to about -19 dBFS RMS, then round off the few peaks (knocks) softly.
+mix *= 10 ** (-19 / 20) / max(1e-9, np.sqrt((mix**2).mean()))
+mix = np.tanh(mix / 0.89) * 0.89
 pcm = (mix * 32767).astype("<i2")
 with wave.open(str(OUT / "sound.wav"), "wb") as w:
     w.setnchannels(2)
