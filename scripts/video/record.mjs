@@ -544,15 +544,17 @@ async function built(r, { station, until = 'done' }) {
   if (station !== undefined) await r.store((s, i) => s.setStation(i), station)
 }
 
-/** Load the stone count that makes the top float, reading the meter like a player would. */
+/** Load the stones that make the top float, reading the meter like a player would. */
 async function balance(r) {
-  let best = { kg: Infinity, n: 0 }
-  for (let n = 6; n <= 18; n++) {
-    await r.store((s, n) => { s.setCobbles(0, n); s.setCobbles(1, n) }, n)
+  // Split `total` stones over the two boxes, at most one apart.
+  const load = (s, [total, tuned]) => { s.setCobbles(0, Math.ceil(total / 2)); s.setCobbles(1, Math.floor(total / 2)); if (tuned) s.setTuned(true) }
+  let best = { kg: Infinity, total: 0 }
+  for (let total = 12; total <= 36; total++) {
+    await r.store(load, [total, false])
     const kg = Number((await r.page.getByTestId('tune-force').innerText()).replace(' kg', ''))
-    if (kg < best.kg) best = { kg, n }
+    if (kg < best.kg) best = { kg, total }
   }
-  await r.store((s, n) => { s.setCobbles(0, n); s.setCobbles(1, n); s.setTuned(true) }, best.n)
+  await r.store(load, [best.total, true])
 }
 
 const plan = [
