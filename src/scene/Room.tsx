@@ -27,7 +27,7 @@ export function Room() {
   return (
     <group>
       {planks.map((m, i) => (
-        <mesh key={i} material={m} position={[ROOM.left + ROOM.width / 2 + ((i * 0.37) % 0.6), -0.01, ROOM.back + PLANK / 2 + i * PLANK]} receiveShadow>
+        <mesh key={i} material={m} position={[ROOM.left + ROOM.width / 2 - ((i * 0.37) % 0.6), -0.01,ROOM.back + PLANK / 2 + i * PLANK]} receiveShadow>
           <boxGeometry args={[ROOM.width, 0.02, PLANK - 0.002]} />
         </mesh>
       ))}
