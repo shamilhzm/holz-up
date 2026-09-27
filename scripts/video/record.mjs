@@ -302,17 +302,19 @@ const scenes = {
   },
 
   async mechanism(r) {
-    await r.click(r.page.getByRole('button', { name: 'Cutaway' }), 2)
+    // Full screen, cut open: the right pedestal from its open side.
+    await r.clean(true)
     r.cursor.visible = false
-    const look = [0.5, 0.52, -0.06]
-    r.caption('Inside a pedestal · Im Korpus', 'A laminated column slides in a waxed guide. Cobblestones on a cord balance the top, like a sash window.', 6)
+    await r.store((s) => s.setCutaway(true))
+    const look = [0.48, 0.6, -0.05]
+    r.caption('Inside a pedestal · Im Korpus', 'A laminated column slides in a waxed guide. Cobblestones on a cord balance the top, like a sash window.', 6, POS.clean)
     const n = 260
     await r.step(n, async (i) => {
-      const t = i / n
-      if (i === 146) r.caption('Inside a pedestal · Im Korpus', 'The top rises, the stones sink. A wooden catch locks it every 25 mm.', 4)
+      const t = ease(i / n)
+      if (i === 146) r.caption('Inside a pedestal · Im Korpus', 'The top rises, the stones sink. A wooden catch locks it every 25 mm.', 4, POS.clean)
       if (i === 150) { await r.store((s) => s.setHeight(1070)); r.cue('slide', 1) }
       if (i === 215) { await r.store((s) => s.setHeight(s.params.sitHeight)); r.cue('slide', 1) }
-      await r.cam([look[0] + 1.55 - t * 0.25, look[1] + 0.42 + t * 0.12, look[2] + 0.55 - t * 0.35], look)
+      await r.cam([2.3 - t * 0.18, 1.06 - t * 0.04, 0.92 - t * 0.44], look, true)
     })
   },
 
