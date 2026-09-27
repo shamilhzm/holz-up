@@ -81,6 +81,18 @@ class Rec {
   async settle(ms) {
     for (let t = 0; t < ms; t += FRAME_MS) await this.page.clock.fastForward(FRAME_MS)
   }
+  /** Run the clock off camera until the 3D view has caught up with a finished build (no glowing outlines). */
+  async untilSolid() {
+    for (let k = 0; k < 25; k++) {
+      const ghosts = await this.page.evaluate(() => {
+        let n = 0
+        window.holzThree().scene.traverse((o) => { if (o.isMesh && o.material?.opacity === 0.5 && o.material.emissiveIntensity === 0.7) n++ })
+        return n
+      })
+      if (!ghosts) return
+      await this.settle(200)
+    }
+  }
 
   // ----- timeline -----
   cue(type, value = 1) {
@@ -377,8 +389,8 @@ const scenes = {
         r.cursor.x = x
         await r.page.mouse.move(r.cursor.x, r.cursor.y)
       })
-      const w = await r.page.locator('[aria-label="Cut progress"] i').getAttribute('style')
-      done = /width: 100%/.test(w ?? '')
+      // Done once "stroke" is no longer the current instruction (the offcut falls, the next part comes).
+      done = (await r.page.locator('ol.how li:nth-child(2).now').count()) === 0
     }
     await r.page.mouse.up()
     r.cursor.pressed = false
@@ -473,6 +485,7 @@ const scenes = {
       if (i % 3 === 0) r.cue('knock', 0.35)
       await r.step(2, () => r.cam(r.orbitAt(look, 2.7, 1.1, 0.2 + (i++ / 60) * 0.5), look))
     })
+    await r.untilSolid()
     await r.read()
     r.cue('ding')
     r.caption('The desk stands · Der Tisch steht', 'Built from parts you cut yourself.', 2.8, POS.workshop)
